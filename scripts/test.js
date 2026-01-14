@@ -81,8 +81,8 @@ async function main() {
   console.log("STEP 0: Health");
   console.log(await get("/health"));
 
-  const emailA = await prompt("Enter email for User A", "userA@example.com");
-  const emailB = await prompt("Enter email for User B", "userB@example.com");
+  const emailA = await prompt("Enter email for User A", "lucaplessing+a@icloud.com");
+  const emailB = await prompt("Enter email for User B", "lucaplessing+b@icloud.com");
 
   console.log("\nSTEP 1: Register User A");
   console.log(await post("/register", { name: "User A", emailAddress: emailA }));
