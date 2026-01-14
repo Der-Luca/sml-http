@@ -23,16 +23,13 @@ export const mailer = nodemailer.createTransport({
   secure,
   auth: SMTP_USER && SMTP_PASS ? { user: SMTP_USER, pass: SMTP_PASS } : undefined,
 
- 
-  connectionTimeout: 10_000, 
-  greetingTimeout: 10_000,   
-  socketTimeout: 20_000,     
+  connectionTimeout: 10_000,
+  greetingTimeout: 10_000,
+  socketTimeout: 20_000,
 
-  
   debug: SMTP_DEBUG === "true",
   logger: SMTP_LOGGER === "true",
 });
-
 
 export async function verifySmtpConnection(): Promise<void> {
   console.log(
@@ -51,17 +48,36 @@ export async function sendConfirmMail(to: string, confirmUrl: string) {
     `[smtp] send start to=${to} host=${SMTP_HOST} port=${SMTP_PORT} secure=${secure}`
   );
 
+  const attachmentJson = {
+    "@type": "EmailRegisterAction",
+    "object": {
+      "@type": "Account",
+      "emailAddress": to,
+    },
+    "target": confirmUrl,
+  };
+
   try {
     const info = await mailer.sendMail({
       from: MAIL_FROM,
       to,
       subject: "Registration confirmation",
-      text: `Please confirm your email by opening this link:\n\n${confirmUrl}\n`,
+
+      // Spec-Text (wenn Ben GENAU "Please click on the" will, dann so lassen)
+      text: "Please click on the\n",
+
+      attachments: [
+        {
+          filename: "register-action.jsonld",
+          contentType: "application/ld+json",
+          content: JSON.stringify(attachmentJson, null, 2),
+          contentDisposition: "attachment",
+        },
+      ],
     });
 
     console.log(`[smtp] send ok messageId=${info.messageId ?? "n/a"}`);
   } catch (err: any) {
-    // Log a useful error message and rethrow so the route can return a 500
     console.error("[smtp] send failed:", err?.message ?? err);
     throw err;
   }
