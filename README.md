@@ -1,10 +1,9 @@
-<<<<<<< HEAD
 # sml-http
-Minimal HTTP server implementing the sml-http specification.
-=======
-sml-http
+SML HTTP server to host simple JSON snipplets
 
-Minimal Node.js + TypeScript REST server (no UI) implementing the sml-http specification.
+### Implementation
+
+Node.js + TypeScript REST server (no UI) implementing the sml-http specification.
 
 The service provides:
 - Email-based registration with confirmation link
@@ -15,13 +14,20 @@ The service provides:
 - Docker & docker-compose setup
 - HTTPS termination recommended via external reverse proxy (e.g. Caddy)
 
-###Requirements###
+### External service dependencies
+
+* HTTPS is expected to be terminated by an external reverse proxy (e.g. Caddy).
+* EMail delivery requires a valid SMTP configuration.
+* MySQL is part of this docker-compose
+* This project intentionally contains no UI.
+
+### Requirements
 
 - Docker & Docker Compose
 - A working SMTP  for sending confirmation emails
 - An external HTTPS reverse proxy (not included)
 
-###Quickstart###
+### Quickstart
 
 1. Create a .env file based on .env.example
 2.  Build and start the services:
@@ -30,31 +36,33 @@ The service provides:
     - curl http://localhost:3000/health
     - Expected response: { "status": "ok" }
 
+# Configuration
 
-###Environment Variables###
+### Environment Variables
 
 - All required variables are documented in .env.example
-# ---- Server ----
+### Server
 PORT (Port the HTTP server listens on)
 PUBLIC_BASE_URL (Base URL used to generate the email confirmation link)
 
-# ---- JWT ----
+### JWT
 JWT_CONFIRM_SECRET (Secret used to sign confirmation tokens)
 JWT_ACCESS_SECRET (Secret used to sign access tokens)
 JWT_CONFIRM_TTL
 JWT_ACCESS_TTL
 
-# ---- Database (used by the Node app) ----
+### Database (used by the Node app)
+
 DB_HOST
 DB_PORT
 DB_NAME
 DB_USER
 DB_PASSWORD
 
-# ---- Database (used by docker compose / mysql container) ----
+### Database (used by docker compose / mysql container)
 DB_ROOT_PASSWORD
 
-# ---- SMTP ----
+### SMTP
 MAIL_FROM
 SMTP_HOST
 SMTP_PORT
@@ -63,8 +71,9 @@ SMTP_USER
 SMTP_PASS
 
 
+# API specs
 
-###Authentication Flow###
+## Authentication Flow
 
 1. Register
 -   Starts the registration process and sends a confirmation email.
@@ -103,8 +112,6 @@ curl -X PUT "http://localhost:3000/r/foo/a" \
 
 { "status": "created" }
 
-  -H "Authorization: Bearer <access_token>"
-
 5. GET /r/:ert/:zui
 
 - Returns the stored JSON if the requester has read access.
@@ -120,20 +127,10 @@ curl "http://localhost:3000/r/foo" \
   -H "Authorization: Bearer <access_token>"
 
 
-
-###Ownership Rule###
+### Ownership Rule
 
 - Ownership is enforced per ert:
 - The first user who writes any resource under an ert becomes the owner of that ert.
 - Only the owner may write under the same ert.
 - Other users attempting to write under an existing ert receive 403 Forbidden.
 - Read access depends on the resource visibility (public-read, public-write, public-none).
-
-###Notes###
-
-HTTPS is expected to be terminated by an external reverse proxy (e.g. Caddy).
-
-Email delivery requires a valid SMTP configuration.
-
-This project intentionally contains no UI.
->>>>>>> 0f7d759 (Initial sml-http implementation)
