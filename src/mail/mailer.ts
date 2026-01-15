@@ -63,12 +63,11 @@ export async function sendConfirmMail(to: string, confirmUrl: string) {
       to,
       subject: "Registration confirmation",
 
-      // Spec-Text (wenn Ben GENAU "Please click on the" will, dann so lassen)
-      text: "Please click on the\n",
+      text: `Please finish registration and confirm your email address by opening this link:\n\n${confirmUrl}\n`,
 
       attachments: [
         {
-          filename: "register-action.jsonld",
+          filename: "register.json",
           contentType: "application/ld+json",
           content: JSON.stringify(attachmentJson, null, 2),
           contentDisposition: "attachment",
