@@ -70,9 +70,17 @@ export async function sendConfirmMail(to: string, confirmUrl: string) {
           filename: "register.json",
           contentType: "application/ld+json",
           content: JSON.stringify(attachmentJson, null, 2),
-          contentDisposition: "attachment",
+          contentDisposition: "inline",
         },
       ],
+
+      /* better use `multipart/alternative` for full representation:
+      alternatives: [
+        {
+          contentType: "application/ld+json",
+          content: JSON.stringify(attachmentJson, null, 2),
+        },
+      ],*/
     });
 
     console.log(`[smtp] send ok messageId=${info.messageId ?? "n/a"}`);
