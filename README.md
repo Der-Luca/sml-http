@@ -98,6 +98,8 @@ GET /register/confirm?code=...
 curl http://localhost:3000/me \
   -H "Authorization: Bearer <access_token>"
 
+## Resource creation and retrieval
+
 4. Resource API
 PUT /r/:ert/:zui
 
@@ -127,7 +129,7 @@ curl "http://localhost:3000/r/foo" \
   -H "Authorization: Bearer <access_token>"
 
 
-### Ownership Rule
+## Resource ownership
 
 - Ownership is enforced per ert:
 - The first user who writes any resource under an ert becomes the owner of that ert.
