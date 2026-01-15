@@ -69,12 +69,13 @@ export async function sendConfirmMail(to: string, confirmUrl: string) {
       subject: "Registration confirmation",
 
       text: `Please finish registration and confirm your email address by opening this link:\n\n${confirmUrl}\n`,
-      html: `<html><p>Please finish registration and <a href="${confirmUrl}">confirm your email address</a></p></html>`,
+      html: `<html><p>Please finish registration and <a href="${confirmUrl}">confirm your email address</a></p></html>\n`,
 
       alternatives: [
         {
           contentType: "application/ld+json",
           content: JSON.stringify(attachmentJson, null, 2),
+          contentDisposition: "inline", // TODO ignored
         },
       ],
     });
