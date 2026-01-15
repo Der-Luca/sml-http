@@ -69,6 +69,7 @@ export async function sendConfirmMail(to: string, confirmUrl: string) {
       subject: "Registration confirmation",
 
       text: `Please finish registration and confirm your email address by opening this link:\n\n${confirmUrl}\n`,
+      html: `<html><p>Please finish registration and <a href="${confirmUrl}">confirm your email address</a></p></html>`,
 
       alternatives: [
         {
