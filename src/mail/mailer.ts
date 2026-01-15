@@ -6,6 +6,7 @@ const {
   SMTP_USER,
   SMTP_PASS,
   SMTP_SECURE,
+  SMTP_CERT_CHECK_SKIP,
   MAIL_FROM,
   SMTP_DEBUG,
   SMTP_LOGGER,
@@ -21,6 +22,9 @@ export const mailer = nodemailer.createTransport({
   host: SMTP_HOST,
   port: Number(SMTP_PORT),
   secure,
+  tls: {
+    rejectUnauthorized: !SMTP_CERT_CHECK_SKIP,
+  },
   auth: SMTP_USER && SMTP_PASS ? { user: SMTP_USER, pass: SMTP_PASS } : undefined,
 
   connectionTimeout: 10_000,
