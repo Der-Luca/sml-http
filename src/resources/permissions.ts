@@ -23,6 +23,10 @@ export function canWrite(
     // Anonymous user tries to create a new ert -> not allowed
     return false;
   }
+  if (!ownerEmail && requesterEmail) {
+    // New resource
+    return true;
+  }
 
   const isOwner = ownerEmail === requesterEmail;
   return isOwner;
