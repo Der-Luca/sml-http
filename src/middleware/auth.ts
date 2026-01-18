@@ -21,9 +21,10 @@ export function requireAuth(
   const header = req.headers.authorization;
 
   if (!header) {
-    // Public access
+    res.status(401).json({ error: "Missing Authorization header" });
     return;
   }
+
   if (!header.startsWith("Bearer ")) {
     res.status(401).json({ error: "Unsupported Authorization header" });
     return;
@@ -33,7 +34,30 @@ export function requireAuth(
     const payload = verifyAccessToken(header.slice(7));
     req.user = { emailAddress: payload.emailAddress };
     next();
-  } catch (ex) {
-    res.status(401).json({ error: "Invalid or expired access token: " + ex });
+    return;
+  } catch {
+    res.status(401).json({ error: "Invalid or expired access token" });
+    return;
   }
+}
+
+export function optionalAuth(
+  req: AuthenticatedRequest,
+  _res: Response,
+  next: NextFunction
+) {
+  const header = req.headers.authorization;
+
+  if (!header || !header.startsWith("Bearer ")) {
+    next();
+    return;
+  }
+
+  try {
+    const payload = verifyAccessToken(header.slice(7));
+    req.user = { emailAddress: payload.emailAddress };
+  } catch {
+  }
+
+  next();
 }

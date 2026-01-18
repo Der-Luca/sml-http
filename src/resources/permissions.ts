@@ -1,33 +1,32 @@
 export function canRead(
   visibility: string,
   ownerEmail: string,
-  requesterEmail: string
+  requesterEmail: string | null
 ): boolean {
-  if (visibility === "public-read" || visibility === "public-write") {
+  const isPublic = visibility === "public-read" || visibility === "public-write";
+
+  if (isPublic) {
     return true;
   }
 
-  const isOwner = ownerEmail === requesterEmail;
-  return isOwner;
+  const isOwner = !!requesterEmail && requesterEmail === ownerEmail;
+  const allowed = isOwner;
+
+  
+
+  return allowed;
 }
 
 export function canWrite(
   visibility: string,
   ownerEmail: string | null,
-  requesterEmail: string
+  requesterEmail: string | null
 ): boolean {
   if (visibility === "public-write") {
     return true;
   }
-  if (!ownerEmail && !requesterEmail) {
-    // Anonymous user tries to create a new ert -> not allowed
-    return false;
-  }
-  if (!ownerEmail && requesterEmail) {
-    // New resource
-    return true;
-  }
 
-  const isOwner = ownerEmail === requesterEmail;
-  return isOwner;
+  const allowed = !!ownerEmail && !!requesterEmail && ownerEmail === requesterEmail;
+
+  return allowed;
 }

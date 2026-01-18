@@ -20,11 +20,13 @@ export async function upsertResource(
     INSERT INTO resources (bundle, filename, owner_email, visibility, content)
     VALUES (?, ?, ?, ?, ?)
     ON DUPLICATE KEY UPDATE
-      content = VALUES(content)
+      content = VALUES(content),
+      visibility = VALUES(visibility)
     `,
     [bundle, filename, ownerEmail, visibility, JSON.stringify(content)]
   );
 }
+
 
 export async function listResources(bundle: string) {
   const [rows] = await pool.query(
