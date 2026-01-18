@@ -1,7 +1,7 @@
 import { Router, type Response, type Request } from "express";
 import { optionalAuth, AuthenticatedRequest } from "../middleware/auth";
 import { getResource, upsertResource, listResources, getOwner } from "../db/resources";
-import { canRead, canWrite } from "../resources/permissions";
+import { canRead, canWrite, Visibility } from "../resources/permissions";
 
 const router = Router();
 
@@ -19,26 +19,31 @@ router.put("/r/:bundle/:filename", optionalAuth, async (req: Request, res: Respo
   }
   const requesterEmail: string | null = (req as AuthenticatedRequest).user?.emailAddress ?? null;
   const accessHeader = req.header("Public-Access");
-  const visibility =
-    accessHeader === "write" || accessHeader === "public-write"
-    ? "public-write"
-    : accessHeader === "none" || accessHeader === "public-none"
-    ? "public-none"
-    : "public-read";
+  const newVisibility: Visibility =
+    accessHeader === "write"
+    ? Visibility.Write
+    : accessHeader === "read"
+    ? Visibility.Read
+    : Visibility.None;
 
   const existingOwner = await getOwner(bundle);
-  if (!existingOwner) {
-    if (!requesterEmail) {
-      return res.status(401).json({ error: "Authentication required to create bundle" });
+  if (existingOwner) {
+    let currentVisibility = Visibility.None;
+    const resource = await getResource(bundle, filename);
+    if (resource) {
+      currentVisibility = resource.visibility as Visibility;
+    }
+    if (!canWrite(currentVisibility, existingOwner, requesterEmail)) {
+      return res.status(403).json({ error: "Write access denied" });
     }
   } else {
-    if (!canWrite(visibility, existingOwner, requesterEmail)) {
-      return res.status(403).json({ error: "Write access denied" });
+    if (!requesterEmail) {
+      return res.status(401).json({ error: "Authentication required to create bundle" });
     }
   }
   const ownerEmail = existingOwner ?? requesterEmail!;
 
-  await upsertResource(bundle, filename, ownerEmail, visibility, req.body);
+  await upsertResource(bundle, filename, ownerEmail, newVisibility, req.body);
 
   return res.status(201).json({ status: "created" });
 });

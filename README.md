@@ -123,7 +123,7 @@ curl "http://localhost:3000/r/foo" \
 - The first user who writes any resource under an bundle becomes the owner of that bundle.
 - Only the owner may write under the same bundle.
 - Other users attempting to write under an existing bundle receive 403 Forbidden.
-- Read access depends on the resource visibility (public-read, public-write, public-none).
+- Read access for the public depends on the resource visibility (read, write, none).
 
 ###Notes###
 
