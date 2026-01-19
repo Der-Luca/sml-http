@@ -28,3 +28,6 @@ Thumbs.db
 # Docker
 *.pid
 docker-compose.override.yml
+
+scripts/test.js
+
