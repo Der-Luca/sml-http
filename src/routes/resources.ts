@@ -19,27 +19,38 @@ router.put("/r/:bundle/:filename", optionalAuth, async (req: Request, res: Respo
   }
   const requesterEmail: string | null = (req as AuthenticatedRequest).user?.emailAddress ?? null;
   const accessHeader = req.header("Public-Access");
-  let newVisibility: Visibility | undefined =
-    accessHeader === "write"
-    ? Visibility.Write
-    : accessHeader === "read"
-    ? Visibility.Read
-    : accessHeader === "none"
-    ? Visibility.None
-    : undefined;
+  let newVisibility: Visibility | undefined;
 
   const existingOwner = await getOwner(bundle);
   if (existingOwner) {
-    let currentVisibility = Visibility.None;
-    const resource = await getResource(bundle, filename);
-    if (resource) {
-      currentVisibility = resource.visibility as Visibility;
-      newVisibility ??= currentVisibility;
-    }
-    if (!canWrite(currentVisibility, existingOwner, requesterEmail)) {
-      return res.status(403).json({ error: "Write access denied" });
-    }
-  } else {
+  let currentVisibility = Visibility.None;
+  const resource = await getResource(bundle, filename);
+  if (resource) {
+    currentVisibility = resource.visibility as Visibility;
+    newVisibility = currentVisibility; // always use DB value if resource exists
+  } else if (requesterEmail === existingOwner) {
+    // owner creates new resource in existing bundle → allow header ONCE
+    newVisibility =
+      accessHeader === "write"
+        ? Visibility.Write
+        : accessHeader === "read"
+        ? Visibility.Read
+        : accessHeader === "none"
+        ? Visibility.None
+        : undefined;
+  }
+  if (!canWrite(currentVisibility, existingOwner, requesterEmail)) {
+    return res.status(403).json({ error: "Write access denied" });
+  }
+} else {
+    newVisibility =
+      accessHeader === "write"
+        ? Visibility.Write
+        : accessHeader === "read"
+        ? Visibility.Read
+        : accessHeader === "none"
+        ? Visibility.None
+        : undefined;
     if (!requesterEmail) {
       return res.status(401).json({ error: "Authentication required to create bundle" });
     }
@@ -93,3 +104,4 @@ router.get("/r/:bundle", optionalAuth, async (req: Request, res: Response) => {
 });
 
 export default router;
+
